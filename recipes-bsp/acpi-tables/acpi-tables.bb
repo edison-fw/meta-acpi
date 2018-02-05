@@ -22,6 +22,13 @@ inherit deploy
 
 ACPI_TABLES ?= ""
 ACPI_TABLES[doc] = "List of ACPI tables to include with the initrd"
+ACPI_FEATURES ?= "uart_2w spi i2c"
+IASLCC = " \
+    ${@bb.utils.contains('ACPI_FEATURES', 'uart_2w', '-D MUX_UART_2WIRE', '', d)} \
+    ${@bb.utils.contains('ACPI_FEATURES', 'uart_4w', '-D MUX_UART_4WIRE', '', d)} \
+    ${@bb.utils.contains('ACPI_FEATURES', 'i2c', '-D MUX_I2C', '', d)} \
+    ${@bb.utils.contains('ACPI_FEATURES', 'spi', '-D MUX_SPI', '', d)} \
+"
 
 do_compile() {
 	# Always clean up the existing tables
@@ -40,7 +47,8 @@ do_compile() {
 
 		dest_table=$(basename $table)
 		bbdebug 1 "Including ACPI table: ${table}"
-		iasl -p ${WORKDIR}/acpi-tables/kernel/firmware/acpi/$dest_table $table
+		bbdebug 1 "Setting iasl compiler defines: ${IASLCC}"
+		iasl ${IASLCC} -p ${WORKDIR}/acpi-tables/kernel/firmware/acpi/$dest_table $table
 	done
 }
 
