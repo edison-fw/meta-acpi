@@ -1,10 +1,14 @@
 #!/bin/sh
 # This script copies all ACPI tables into /kernel/firmware/acpi
 # You must have configfs enabled for this to work
+    echo 510 > /sys/class/gpio/export # export TRI_STATE_ALL pin
+    echo low > /sys/class/gpio/gpio510/direction # set output low
 
     for TABLE in `ls /kernel/firmware/acpi/ 2>/dev/null`; do
-	dest_dir=$(basename $TABLE .aml)
-	mkdir /sys/kernel/config/acpi/table/$dest_dir
-	cat /kernel/firmware/acpi/$TABLE > /sys/kernel/config/acpi/table/$dest_dir/aml
+        dest_dir=$(basename $TABLE .aml)
+        mkdir /sys/kernel/config/acpi/table/$dest_dir
+        cat /kernel/firmware/acpi/$TABLE > /sys/kernel/config/acpi/table/$dest_dir/aml
     done
 
+    echo high > /sys/class/gpio/gpio510/direction # set output high
+    echo 510 > /sys/class/gpio/unexport # unexport TRI_STATE_ALL pin
