@@ -8,9 +8,5 @@
         cat /kernel/firmware/acpi/$TABLE > /sys/kernel/config/acpi/table/$dest_dir/aml
     done
 
-    echo 510 > /sys/class/gpio/export 2 > NULL # export TRI_STATE_ALL pin
-    if [ -f /sys/class/gpio/gpio510/direction ]; then
-	echo low > /sys/class/gpio/gpio510/direction # set output low
-        echo high > /sys/class/gpio/gpio510/direction # set output high
-        echo 510 > /sys/class/gpio/unexport # unexport TRI_STATE_ALL pin
-    fi
+    gpioset `gpiofind TRI_STATE_ALL`=0
+    gpioset `gpiofind TRI_STATE_ALL`=1
