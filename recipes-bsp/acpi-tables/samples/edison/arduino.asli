@@ -341,7 +341,7 @@ Scope (\_SB.PCI0.I2C1)
             Package () {
                 Package () {"gpio-hog", 1},
                 Package () {"gpios", Package () {4, 0}},
-                Package () {"output-high", 1},
+                Package () {"output-low", 1},
                 Package () {"line-name", "i2c6-sda-mux"},
             }
         })
@@ -351,7 +351,7 @@ Scope (\_SB.PCI0.I2C1)
             Package () {
                 Package () {"gpio-hog", 1},
                 Package () {"gpios", Package () {5, 0}},
-                Package () {"output-high", 1},
+                Package () {"output-low", 1},
                 Package () {"line-name", "i2c6-scl-mux"},
             }
         })
