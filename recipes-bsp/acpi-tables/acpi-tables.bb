@@ -10,7 +10,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=377548
 
 DEPENDS = "acpica-native"
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/files/${BPN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files/${BPN}:"
 
 SRC_URI = "\
 	file://acpi-tables-load.service \
@@ -21,11 +21,11 @@ B = "${WORKDIR}/acpi-tables"
 
 inherit deploy
 
-RDEPENDS_${PN}_edison = "libgpiod-tools"
+RDEPENDS:${PN}:edison = "libgpiod-tools"
 
 ACPI_TABLES ?= ""
 ACPI_TABLES[doc] = "List of ACPI tables to include with the initrd"
-ACPI_FEATURES_edison ?= "uart_2w spi i2c"
+ACPI_FEATURES:edison ?= "uart_2w spi i2c"
 IASLFLAGS = " \
     ${@bb.utils.contains('ACPI_FEATURES', 'uart_2w', '-DMUX_UART_2WIRE', '', d)} \
     ${@bb.utils.contains('ACPI_FEATURES', 'uart_4w', '-DMUX_UART_4WIRE', '', d)} \
@@ -71,9 +71,9 @@ do_install() {
 
 }
 
-FILES_${PN} = "/kernel/firmware/acpi"
-FILES_${PN} += "${systemd_unitdir}/system/*"
-FILES_${PN} += "${bindir}/*"
+FILES:${PN} = "/kernel/firmware/acpi"
+FILES:${PN} += "${systemd_unitdir}/system/*"
+FILES:${PN} += "${bindir}/*"
 
 do_deploy() {
 	cd ${WORKDIR}/acpi-tables
