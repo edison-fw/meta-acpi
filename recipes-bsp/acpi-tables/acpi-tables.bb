@@ -25,6 +25,9 @@ RDEPENDS:${PN}:edison = "libgpiod-tools"
 
 ACPI_TABLES ?= ""
 ACPI_TABLES[doc] = "List of ACPI tables to include with the initrd"
+ACPI_TABLES_EXTRA ?= ""
+ACPI_TABLES_EXTRA[doc] = "List of additional ACPI built without flags"
+ACPI_TABLES_EXTRA:edison ?= "arduino.asl"
 ACPI_FEATURES:edison ?= "uart_2w spi i2c"
 IASLFLAGS = " \
     ${@bb.utils.contains('ACPI_FEATURES', 'uart_2w', '-DMUX_UART_2WIRE', '', d)} \
@@ -40,6 +43,21 @@ do_compile() {
 	rm -fr ${WORKDIR}/acpi-tables/kernel
 	install -d ${WORKDIR}/acpi-tables/kernel/firmware/acpi
 
+	for table in ${ACPI_TABLES_EXTRA}; do
+		# If relative path is given use sample tables if
+		# available for the machine in question.
+		d=$(dirname $table)
+		if [ "$d" = "." ]; then
+			table="${THISDIR}/samples/${MACHINE}/$table"
+		fi
+
+		[ -f "$table" ] || continue
+
+		dest_table=$(basename $table)
+		bbdebug 1 "Including ACPI table: ${table}"
+		bbdebug 1 "Building without iasl compiler defines"
+		iasl -p ${WORKDIR}/acpi-tables/kernel/firmware/acpi/$dest_table $table
+	done
 	for table in ${ACPI_TABLES}; do
 		# If relative path is given use sample tables if
 		# available for the machine in question.
@@ -60,6 +78,10 @@ do_compile() {
 do_install() {
 
 	install -d ${D}/kernel/firmware/acpi
+	for table in ${ACPI_TABLES_EXTRA}; do
+		dest_table=$(basename $table .asl)
+		install -m 644 ${B}/kernel/firmware/acpi/${dest_table}.aml ${D}/kernel/firmware/acpi/${dest_table}.aml
+	done
 	for table in ${ACPI_TABLES}; do
 		dest_table=$(basename $table .asl)
 		install -m 644 ${B}/kernel/firmware/acpi/${dest_table}.aml ${D}/kernel/firmware/acpi/${dest_table}.aml

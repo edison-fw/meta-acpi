@@ -2,12 +2,27 @@
 # This script loads all ACPI tables from /kernel/firmware/acpi
 # You must have configfs enabled for this to work
 
+# This is particular to Intel Edison-Arduino
+# To initialize the muxes we need TRI_STATE_ALL to exist
+# For that load the simplest table, toggle TRI_STATE_ALL and unload
+# If you want none of this loaded from initrd put skiptables on kernel
+# command line. Installing package acpi-tables will install also
+# acpi-tables-load.service which can be enabled in systemd
+    SIMPLE=/kernel/firmware/acpi/arduino.aml
+    if [ -f $SIMPLE ]; then
+        dest_dir=$(basename $SIMPLE .aml)
+        mkdir /sys/kernel/config/acpi/table/$dest_dir
+        cat $SIMPLE > /sys/kernel/config/acpi/table/$dest_dir/aml
+        sleep 0.2
+        gpioset `gpiofind TRI_STATE_ALL`=0 && gpioset `gpiofind TRI_STATE_ALL`=1
+        rmdir /sys/kernel/config/acpi/table/$dest_dir
+    fi
+# Then proceed and load any other tables
     find /kernel/firmware/acpi/ -type f -name "*.aml" 2>/dev/null | while read TABLE; do
+        [ "$TABLE" == "$SIMPLE" ] && continue
         dest_dir=$(basename $TABLE .aml)
         mkdir /sys/kernel/config/acpi/table/$dest_dir
         cat $TABLE > /sys/kernel/config/acpi/table/$dest_dir/aml
     done
 
-    sleep 0.2
-    gpioset `gpiofind TRI_STATE_ALL`=0
-    gpioset `gpiofind TRI_STATE_ALL`=1
+
