@@ -14,7 +14,8 @@
         mkdir /sys/kernel/config/acpi/table/$dest_dir
         cat $SIMPLE > /sys/kernel/config/acpi/table/$dest_dir/aml
         sleep 0.2
-        gpioset `gpiofind TRI_STATE_ALL`=0 && gpioset `gpiofind TRI_STATE_ALL`=1
+# toggle TRI_STATE_ALL low for 1ms
+        gpioset -t 1,0  "TRI_STATE_ALL"=0
         rmdir /sys/kernel/config/acpi/table/$dest_dir
     fi
 # Then proceed and load any other tables
@@ -24,5 +25,8 @@
         mkdir /sys/kernel/config/acpi/table/$dest_dir
         cat $TABLE > /sys/kernel/config/acpi/table/$dest_dir/aml
     done
+    sleep 0.2
+# take control of the line and hold it high
+    gpioset -z "TRI_STATE_ALL"=1
 
 
