@@ -16,7 +16,7 @@ COMPATIBLE_HOST = "(i.86|x86_64|arm|aarch64).*-linux"
 
 DEPENDS = "bison flex"
 
-SRC_URI = "https://acpica.org/sites/acpica/files/acpica-unix2-${PV}.tar.gz \
+SRC_URI = "https://www.coreboot.org/releases/crossgcc-sources/acpica-unix2-${PV}.tar.gz \
            file://rename-yy_scan_string-manually.patch \
            file://manipulate-fds-instead-of-FILE.patch \
            "
