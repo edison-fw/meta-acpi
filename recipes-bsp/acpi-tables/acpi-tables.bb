@@ -17,7 +17,8 @@ SRC_URI = "\
 	file://acpi-tables-load \
 "
 
-B = "${WORKDIR}/acpi-tables"
+B = "${UNPACKDIR}/acpi-tables"
+S = "${UNPACKDIR}"
 
 inherit deploy
 
@@ -40,8 +41,8 @@ IASLFLAGS = " \
 
 do_compile() {
 	# Always clean up the existing tables
-	rm -fr ${WORKDIR}/acpi-tables/kernel
-	install -d ${WORKDIR}/acpi-tables/kernel/firmware/acpi
+	rm -fr ${S}/acpi-tables/kernel
+	install -d ${S}/acpi-tables/kernel/firmware/acpi
 
 	for table in ${ACPI_TABLES_EXTRA}; do
 		# If relative path is given use sample tables if
@@ -56,7 +57,7 @@ do_compile() {
 		dest_table=$(basename $table)
 		bbdebug 1 "Including ACPI table: ${table}"
 		bbdebug 1 "Building without iasl compiler defines"
-		iasl -p ${WORKDIR}/acpi-tables/kernel/firmware/acpi/$dest_table $table
+		iasl -p ${S}/acpi-tables/kernel/firmware/acpi/$dest_table $table
 	done
 	for table in ${ACPI_TABLES}; do
 		# If relative path is given use sample tables if
@@ -71,7 +72,7 @@ do_compile() {
 		dest_table=$(basename $table)
 		bbdebug 1 "Including ACPI table: ${table}"
 		bbdebug 1 "Setting iasl compiler defines: ${IASLFLAGS}"
-		iasl ${IASLFLAGS} -p ${WORKDIR}/acpi-tables/kernel/firmware/acpi/$dest_table $table
+		iasl ${IASLFLAGS} -p ${S}/acpi-tables/kernel/firmware/acpi/$dest_table $table
 	done
 }
 
@@ -87,9 +88,9 @@ do_install() {
 		install -m 644 ${B}/kernel/firmware/acpi/${dest_table}.aml ${D}/kernel/firmware/acpi/${dest_table}.aml
 	done
 	install -d ${D}${bindir}
-	install -m 0755 ${WORKDIR}/acpi-tables-load ${D}${bindir}
+	install -m 0755 ${S}/acpi-tables-load ${D}${bindir}
 	install -d ${D}/${systemd_unitdir}/system
-        install -m 644 ${WORKDIR}/acpi-tables-load.service ${D}/${systemd_unitdir}/system
+        install -m 644 ${S}/acpi-tables-load.service ${D}/${systemd_unitdir}/system
 
 }
 
@@ -98,7 +99,7 @@ FILES:${PN} += "${systemd_unitdir}/system/*"
 FILES:${PN} += "${bindir}/*"
 
 do_deploy() {
-	cd ${WORKDIR}/acpi-tables
+	cd ${S}/acpi-tables
 	find kernel | cpio -H newc -o > ${DEPLOYDIR}/acpi-tables.cpio
 }
 addtask deploy before do_build after do_compile

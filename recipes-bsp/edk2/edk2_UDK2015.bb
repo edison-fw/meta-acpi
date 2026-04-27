@@ -14,7 +14,7 @@ SRC_URI = " \
   ${EDK2_SHELL_URI}/MinimumShell/X64/Shell.efi;md5sum=f5c3c2c7d3c12e6b03b72a13dc514c4f;downloadfilename=Shell64.efi \
   ${EDK2_SHELL_URI}/License.txt;md5sum=ffd52cf9a8e0e036b9a61a0de2dc87ed \
   "
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 do_deploy () {
         install ${B}/Shell*.efi ${DEPLOYDIR}
